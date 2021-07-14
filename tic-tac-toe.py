@@ -10,21 +10,13 @@ Control Flow:
     player-1 is X and player-2 is O always
 """
 
-board = [["_" for _ in range(3)] for _ in range(3)]
 position_map = {1 : (0, 0), 2 : (0, 1), 3 : (0, 2),
                 4 : (1, 0), 5 : (1, 1), 6 : (1, 2), 
                 7 : (2, 0), 8 : (2, 1), 9 : (2, 2)}
-playerOne = True
-moveCount = 0
+
 
 def gameReset():
-    global board
-    global playerOne
-    global moveCount 
-    board = [["_" for _ in range(3)] for _ in range(3)]
-    playerOne = True
-    moveCount = 0
-    return
+    return [["_"]*3 for _ in range(3)], True, 0
 
 def print_board(board):
     for row in board:
@@ -32,18 +24,21 @@ def print_board(board):
             print(f"{slot} ", end=" ")
         print(" ")
     
+def checkValidPos(board, x, y):
+    if(board[x][y] != '_'):
+        print("Position already played")
+        return False
 
+    return True
 
-def isValid(user_input):
+def isValid(board, user_input):
     #Check if its a valid position
     if user_input.lower() == 'q':
         return True
     elif(int(user_input) >= 1 and int(user_input) <= 9):
         (i, j) = position_map[int(user_input)]
-        if board[i][j] != "_":
-            print("Position already Played")
-            return False
-        return True
+        return checkValidPos(board, i, j)
+    
     return False
 
 def isQuit(user_input):
@@ -54,19 +49,15 @@ def moveCoin(playerOne):
         return 'X'
     return 'O'
 
-def playMove(position, token):
-    
-    global board
-    global position_map
-    global moveCount
+def playMove(board, position_map, moveCount, position, token):
+
     (i, j) = position_map[int(position)]
     board[i][j] = token
     ##print_board(board)
     moveCount += 1
     return
 
-def checkPlayerWon(token):
-    global board
+def checkPlayerWon(board, token):
     result = [token] * 3
 
     #Check Rows
@@ -105,14 +96,12 @@ def checkPlayerWon(token):
 
     return False
 
-def checkDraw():
-    global moveCount
+def checkDraw(moveCount):
     return moveCount == 9
 
 def playAgain():
     playAgain = input("Play Again ? y for yes, no otherwise: ")
     if(playAgain.lower() == 'y'):
-        gameReset()
         return True
     print("Thank you for playing!")
     return False
@@ -120,8 +109,9 @@ def playAgain():
 
 def playGame():
     
-    global board
-    global playerOne
+    board = [["_" for _ in range(3)] for _ in range(3)]
+    moveCount = 0
+    playerOne = True
     #Main Game Loop
     while True:
         
@@ -133,7 +123,7 @@ def playGame():
 
         user_input = input("Enter position (1-9) you want play or q/Q to quit: ")
         #Validate User Input    
-        if not isValid(user_input):
+        if not isValid(board, user_input):
             print("Kindly Enter a Valid Input, for the game to proceed")
             continue
 
@@ -144,20 +134,22 @@ def playGame():
         
         #Play the move
         token = moveCoin(playerOne)
-        playMove(user_input, token)
+        playMove(board, position_map, moveCount, user_input, token)
         
         #Check if game is finished
-        if checkPlayerWon(token):
+        if checkPlayerWon(board, token):
             print_board(board)
             print(f"{token} has Won the game")
             if(playAgain()):
+                board, playerOne, moveCount = gameReset()
                 continue
             else:
                 break
-        elif checkDraw():
+        elif checkDraw(moveCount):
             print_board(board)
             print("The Game is a Draw")
             if(playAgain()):
+                board, playerOne, moveCount = gameReset()
                 continue
             else:
                 break
