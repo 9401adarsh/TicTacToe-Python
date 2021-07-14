@@ -121,7 +121,7 @@ def minMax(currState, player):
     else:
         bestScore = 1e4
         for move in allMoves:
-            if move.score < bestScore:
+            if move.score <= bestScore:
                 bestScore = move.score
                 bestMove = move
 
@@ -196,14 +196,15 @@ def playGame():
             HumanPlayer = oppPlayer.token
 
             minMaxres = minMax(board, AIPlayer)
-            print(f'idx: {minMaxres.index}')
+            #print(f'idx: {minMaxres.index}')
             posToPlay = minMaxres.index
             playMove(board, currPlayer, posToPlay)
             if(checkWin(board, currPlayer.token)):
                 printBoard(board)
                 print(f'{currPlayer.token} has won')
                 break
-    
+        
+        print('-------------------------------------------------------------')
         turnOne = not turnOne
 
     return
